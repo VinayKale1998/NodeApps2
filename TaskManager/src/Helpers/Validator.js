@@ -1,8 +1,10 @@
-// const { default: isBoolean } = require("validator/lib/isBoolean")
+
 
 class Validator {
   static validTaskInfoPost(taskInfo, taskData) {
     //post --------------------------------------------------
+
+       //verifying presence of important properties
     if (
       taskInfo.hasOwnProperty("title") &&
       taskInfo.hasOwnProperty("description") &&
@@ -10,7 +12,7 @@ class Validator {
       taskInfo.hasOwnProperty("complete") &&
       this.validateUniqueTaskId(taskInfo, taskData)
     ) {
-      //valiating presence of important properties
+   
 
       //    validating title
       if (!taskInfo.title.length > 0) {
@@ -48,12 +50,15 @@ class Validator {
         "status": false,
         "message": "Task Id should be unique",
       };
-    } else if (
+    }
+     else if (
       !taskInfo.hasOwnProperty("title") &&
       taskInfo.hasOwnProperty("description") &&
       taskInfo.hasOwnProperty("taskId") &&
       taskInfo.hasOwnProperty("complete")
-    ) {
+    ) 
+    
+    {
       return {
         "status": false,
         "message": "Data provided is malformed, please enter all the details",
@@ -62,17 +67,20 @@ class Validator {
   
   }
 
-  //put----------------------------------
+
+  //
+  //put validations----------------------------------
 
   static validateTaskInfoPut(taskInfo, taskData) {
+    //verifying presence of important properties
     if (
       taskInfo.hasOwnProperty("title") &&
       taskInfo.hasOwnProperty("description") &&
       taskInfo.hasOwnProperty("taskId") &&
       taskInfo.hasOwnProperty("complete") &&
-      this.alreadyPresent(taskInfo, taskData)
+      this.alreadyPresent(taskInfo.taskId, taskData)
     ) {
-      //valiating presence of important properties
+      
 
       //    validating title
       if (!taskInfo.title.length > 0) {
@@ -109,13 +117,17 @@ class Validator {
         "status": false,
         "message": "Task with the provided task Id not present",
       };
-    } else if (
+    } 
+    
+    else if (
       !taskInfo.hasOwnProperty("title") &&
       taskInfo.hasOwnProperty("description") &&
       taskInfo.hasOwnProperty("taskId") &&
       taskInfo.hasOwnProperty("complete")
     ) {
-      return {
+      
+      
+        return {
         "status": false,
         "message": "Data provided is malformed, please enter all the details",
       };
@@ -124,6 +136,10 @@ class Validator {
    
   }
 
+
+
+
+  //validating uniquness of a taskId
   static validateUniqueTaskId(taskInfo, taskData) {
     let valueFound = taskData.tasks.some(
       (value) => value.taskId == taskInfo.taskId
@@ -135,13 +151,22 @@ class Validator {
     return true;
   }
 
-  static alreadyPresent(taskInfo, taskData) {
-    let present = taskData.tasks.some((item) => item.taskId == taskInfo.taskId);
 
-    if (present) return false;
 
-    return true;
+  //verifying presence of a taskID
+
+  static alreadyPresent(taskId, taskData) {
+    let valueFound = taskData.tasks.some(
+        (value) => value.taskId == taskId
+      );
+  
+      if (valueFound) return true;
+  
+      //else
+      return false;
   }
 }
+
+
 
 module.exports = Validator;

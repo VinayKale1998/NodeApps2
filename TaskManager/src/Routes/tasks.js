@@ -10,26 +10,32 @@ const { takeCoverage } = require("v8");
 taskRoutes.use(bodyParser.urlencoded({ extended: false }));
 taskRoutes.use(bodyParser.json());
 
+//----------------------GET Whole List-------------------------
+
 taskRoutes.get("/", (req, res) => {
-  res.sendStatus(200);
-  res.send(taskData);
+  res.status(200).send(taskData);
 });
-// res.send('This is the tasks list')
 
-//fetching a specific task id
+
+
+//----------------------GET specific task------------------------
 taskRoutes.get("/:taskId", (req, res) => {
-  // lets first check for the param  passed in the URL
+  //fetching  the param  passed in the endpoint
   let taskIdPassed = req.params.taskId;
-
-  // lets get tasks from the json
   let taskList = taskData.tasks;
   let result = taskList.filter((item) => taskIdPassed == item.taskId);
 
-  res.send(result);
-  // res.sendStatus(200);
+  if (result.length == 0) {
+    res.status(200).json({ status: false, message: "Task not found" });
+  } else {
+    res.send(result);
+  }
 });
 
-//creating a new task
+
+
+
+//--------------------POST  create a new task-------------------
 taskRoutes.post("/", (req, res) => {
   const taskDetails = req.body;
   let writePath = path.join(__dirname, "..", "tasks.json");
@@ -50,7 +56,9 @@ taskRoutes.post("/", (req, res) => {
   }
 });
 
-//updating  a task
+
+
+//-----------------------PUT updating an existing task--------------------
 taskRoutes.put("/:taskId", (req, res) => {
   let updateId = req.params.taskId;
   let updatedData = taskData;
@@ -68,7 +76,30 @@ taskRoutes.put("/:taskId", (req, res) => {
 
     res.status(200).send("Task has been successfully updated");
   } else {
-    res.send(Validator.validateTaskInfoPut(updateTask, taskData));
+    res.json(Validator.validateTaskInfoPut(updateTask, taskData));
+  }
+});
+
+
+
+
+//---------------------Delete , remove an exisiting task---------------------
+taskRoutes.delete("/:taskId", (req, res) => {
+  let deleteId = req.params.taskId;
+  let updatedTasks = taskData;
+  let writePath = path.join(__dirname, "..", "tasks.json");
+
+  if (Validator.alreadyPresent(deleteId, taskData)) {
+    updatedTasks.tasks = taskData.tasks.filter((item) => {
+      return item.taskId != deleteId;
+    });
+    fs.writeFileSync(writePath, JSON.stringify(updatedTasks), {
+      encoding: "utf8",
+      flag: "w",
+    });
+    res.status(200).send("Task has been successfully deleted");
+  } else {
+    res.json({ status: false, message: "TaskId not found" });
   }
 });
 
